@@ -5,8 +5,15 @@ import           Hakyll
 
 
 --------------------------------------------------------------------------------
+config :: Configuration
+config = defaultConfiguration
+    { destinationDirectory = "docs"
+    , storeDirectory       = ".hakyll/store"
+    , tmpDirectory         = ".hakyll/tmp"
+    }
+
 main :: IO ()
-main = hakyll $ do
+main = hakyllWith config $ do
     match "images/*" $ do
         route   idRoute
         compile copyFileCompiler

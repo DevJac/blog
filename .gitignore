@@ -1,4 +1,3 @@
 dist/
 dist-newstyle/
-_cache/
-_site/
+.hakyll/
