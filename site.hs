@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
 import           Hakyll
 
 config :: Configuration
