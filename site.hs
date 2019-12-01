@@ -1,9 +1,6 @@
---------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
 import           Hakyll
 
-
---------------------------------------------------------------------------------
 config :: Configuration
 config = defaultConfiguration
     { destinationDirectory = "docs"
@@ -65,8 +62,6 @@ main = hakyllWith config $ do
 
     match "templates/*" $ compile templateBodyCompiler
 
-
---------------------------------------------------------------------------------
 postCtx :: Context String
 postCtx =
     dateField "date" "%B %e, %Y" <>
