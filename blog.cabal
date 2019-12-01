@@ -31,4 +31,5 @@ executable site
                         -fno-warn-missing-signatures
                         -fno-warn-partial-type-signatures
   build-depends:        base == 4.*
+                      , filepath == 1.4.*
                       , hakyll == 4.13.*

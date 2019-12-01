@@ -1,5 +1,6 @@
 ----
-title: Functional Reactive Programming with `reactive-banana` and `vty`
+title: Functional Reactive Programming with reactive-banana and vty
+html-title: Functional Reactive Programming with <code>reactive-banana</code> and <code>vty</code>
 ----
 
 I recently built some small but interesting demos using `reactive-banana` and `vty`. Although [reactive-banana has its own examples][1], I haven't been able to get them to work because of issues with `wxWidgets`. Even thought these few examples wont cover the same amount of material as the [reactive-banana examples][1] they will be enough to get you started with `reactive-banana` and functional reactive programming (FRP). I hope to teach you enough that you'll feel comfortable using the [`reactive-banana` documentation][2] to learn the rest of the library.

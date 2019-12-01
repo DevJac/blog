@@ -1,4 +1,7 @@
-import           Hakyll
+import Data.Maybe (catMaybes)
+import System.FilePath (takeBaseName)
+import Hakyll hiding (defaultContext)
+import qualified Hakyll
 
 config :: Configuration
 config = defaultConfiguration
@@ -65,3 +68,15 @@ postCtx :: Context String
 postCtx =
     dateField "date" "%B %e, %Y" <>
     defaultContext
+
+defaultContext :: Context String
+defaultContext = htmlTitle <> Hakyll.defaultContext
+
+htmlTitle :: Context String
+htmlTitle = field "html-title" $ \item -> do
+    metadata <- getMetadata (itemIdentifier item)
+    let possibleHtmlTitles = [
+            lookupString "html-title" metadata,
+            lookupString "title" metadata,
+            Just $ takeBaseName $ toFilePath $ itemIdentifier item]
+    return $ head $ catMaybes possibleHtmlTitles
