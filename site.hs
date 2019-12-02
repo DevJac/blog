@@ -1,7 +1,11 @@
-import Data.Maybe (catMaybes)
-import System.FilePath (takeBaseName)
-import Hakyll hiding (defaultContext)
+import           Data.Either (fromRight)
+import           Data.Maybe (fromMaybe)
+import           Data.Void (Void)
+import           System.FilePath (takeBaseName)
+import qualified Text.Megaparsec as P
+import           Text.Megaparsec.Char (char)
 import qualified Hakyll
+import           Hakyll hiding (PlainText, defaultContext)
 
 config :: Configuration
 config = defaultConfiguration
@@ -70,13 +74,50 @@ postCtx =
     defaultContext
 
 defaultContext :: Context String
-defaultContext = htmlTitle <> Hakyll.defaultContext
+defaultContext = plainTitle <> htmlTitle <> Hakyll.defaultContext
+
+plainTitle :: Context String
+plainTitle = field "title" $ \item -> do
+    let identifier = itemIdentifier item
+    metadata <- getMetadata identifier
+    return $ fromMaybe
+        (takeBaseName $ toFilePath identifier)
+        (titleToPlainText <$> lookupString "title" metadata)
 
 htmlTitle :: Context String
 htmlTitle = field "html-title" $ \item -> do
-    metadata <- getMetadata (itemIdentifier item)
-    let possibleHtmlTitles = [
-            lookupString "html-title" metadata,
-            lookupString "title" metadata,
-            Just $ takeBaseName $ toFilePath $ itemIdentifier item]
-    return $ head $ catMaybes possibleHtmlTitles
+    let identifier = itemIdentifier item
+    metadata <- getMetadata identifier
+    return $ fromMaybe
+        (takeBaseName $ toFilePath identifier)
+        (titleToHtml <$> lookupString "title" metadata)
+
+titleToPlainText :: String -> String
+titleToPlainText title = concatMap
+    (\case
+        PlainText s -> s
+        Code s      -> s)
+    (parseTitle title)
+
+titleToHtml :: String -> String
+titleToHtml title = concatMap
+    (\case
+        PlainText s -> s
+        Code s      -> "<code>" ++ s ++ "</code>")
+    (parseTitle title)
+
+data TitlePart = PlainText String | Code String deriving Show
+type Title = [TitlePart]
+type Parser = P.Parsec Void String
+
+parseTitle :: String -> Title
+parseTitle title = fromRight [] $
+    P.parse (P.many (P.try parseTitlePlainText P.<|> parseTitleCode)) "" title
+
+parseTitlePlainText :: Parser TitlePart
+parseTitlePlainText = PlainText <$>
+    P.takeWhile1P (Just "Plain Text Character") (/= '`')
+
+parseTitleCode :: Parser TitlePart
+parseTitleCode = Code <$>
+    (char '`' *> P.manyTill (P.label "Code Character" P.anySingle) (char '`'))
