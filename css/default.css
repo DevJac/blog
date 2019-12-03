@@ -39,10 +39,11 @@ h2 {
 h3 {
     font-size: 1.2rem;
 }
-article .header {
+article .authordate {
     font-size: 1rem;
     font-style: italic;
     color: #333;
+    margin: 0 1rem;
 }
 @media (max-width: 66rem) {
     body {
