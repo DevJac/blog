@@ -88,20 +88,69 @@ About the code:
 
 - `fireInputE =<< V.nextEvent vty` runs in an infinite loop. It repeatedly calls `V.nextEvent` which blocks until a `vty` `Event` occurs, and when an `Event` occurs it fires that `Event` into the FRP network. This is necessary because `reactive-banana` doesn't have a way to poll a blocking function like `V.nextEvent`, but we can make our own adapter with this one line. 
 
-- `reactimate` is how the FRP network runs output actions. We will talk about the reason we're using `fmap` in that same line in the next section.
+- `reactimate` is how the FRP network runs output actions.
 
 ## Building Logic with `reactive-banana`
 
-!!!*TODO*!!! Teach Events, Behaviors, and the 10 primitive combinators.
+Finally, I'll end with a more complex example. This program allows you to type in your terminal, and pressing escape will toggle capitalization of the letters.
 
-## Additional Notes and Thanks
+```haskell
+import Control.Concurrent (threadDelay, forkIO)
+import Control.Monad (forever)
+import Data.Char (toUpper)
+import qualified Graphics.Vty as V
+import Reactive.Banana
+import Reactive.Banana.Frameworks
 
-!!!*TODO*!!! Thank /r/haskellquestions user who helped me.
+main :: IO ()
+main = do
+    vty <- V.mkVty V.defaultConfig
+    actuate =<< network vty
+    threadDelay $ 20 * 1000000
+    V.shutdown vty
 
-!!!*TODO*!!! Mention flapjax documentation.
+update :: V.Vty -> [String] -> IO ()
+update vty = V.update vty . V.picForImage . mconcat . fmap (V.string V.defAttr)
 
-!!!*TODO*!!! Mention the frp-zoo.
+network :: V.Vty -> IO EventNetwork
+network vty = compile $ do
+    (inputEvents, fireInputEvent) <- newEvent
+    _ <- liftIO $ forkIO $ forever $ fireInputEvent =<< V.nextEvent vty
+    outputEvents <- liftMoment $ pureNetwork inputEvents
+    reactimate' =<< changes (fmap (update vty) outputEvents)
+
+isChar :: V.Event -> Bool
+isChar (V.EvKey (V.KChar _) _) = True
+isChar _                       = False
+
+isEsc :: V.Event -> Bool
+isEsc (V.EvKey (V.KEsc) _) = True
+isEsc _                    = False
+
+mightCapitalize :: Bool -> String -> String
+mightCapitalize True  = fmap toUpper
+mightCapitalize False = id
+
+pureNetwork :: Event V.Event -> Moment (Behavior [String])
+pureNetwork inputEvents = do
+    let inputChar = (\(V.EvKey (V.KChar c) _) -> pure c) <$>
+                    filterE isChar inputEvents
+    let inputEsc = filterE isEsc inputEvents
+    accumedString <- accumB "" ((\new accumed -> accumed ++ new) <$> inputChar)
+    capitalizeSwitch <- accumE False (not <$ inputEsc)
+    maybeCapitalize <- switchB (pure $ mightCapitalize False)
+                               (pure . mightCapitalize <$> capitalizeSwitch)
+    pure $ fmap pure $ maybeCapitalize <*> accumedString
+```
+
+The core logic and state is managed in `pureNetwork`.
+
+You can't tell by reading, but it's been over 2 years since I started writing this post. I lost momentum, and then lost interest in publishing a blog until recently. I've lost most of the insights I had to offer, so I will instead refer you to the [`reactive-banana` documentation][4]. `reactive-banana` is relatively small compared to other FRP frameworks, and has good documentation.
+
+Hopefully this small self-contained example will give you a starting place for your own experiments. As an exercise, modify the program so that toggling capitalization is throttled to once per second, but keypresses should remain unthrottled. As a hint, see [`fromPoll`][5].
 
 [1]: https://hackage.haskell.org/package/reactive-banana
 [2]: https://wiki.haskell.org/Reactive-banana/Examples
 [3]: https://hackage.haskell.org/package/vty
+[4]: https://hackage.haskell.org/package/reactive-banana/docs/Reactive-Banana-Combinators.html
+[5]: https://hackage.haskell.org/package/reactive-banana/docs/Reactive-Banana-Frameworks.html#v:fromPoll
