@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="generator" content=
+"HTML Tidy for HTML5 for Linux version 5.7.28">
+<meta charset="utf-8">
+<title>Functional Reactive Programming with reactive-banana and
+vty</title>
+<link rel="stylesheet" href="../css/default.css">
+</head>
+<body>
+<header>
+<div class="logo"><a href="../">DevJac</a></div>
+<nav><a href="../">Home</a> <a href=
+"../archive.html">Archive</a></nav>
+</header>
+<main role="main">
+<article>
+<h1>Functional Reactive Programming with
+<code>reactive-banana</code> and <code>vty</code></h1>
+<div class="authordate">December 4, 2019</div>
+<p>I’ve recently been experimenting with Haskell’s <a href=
+"https://hackage.haskell.org/package/reactive-banana"><code>reactive-banana</code></a>,
+a functional reactive programming (FRP) library. I couldn’t get the
+<a href=
+"https://wiki.haskell.org/Reactive-banana/Examples"><code>reactive-banana</code>
+examples</a> to work because of issues with <code>wxWidgets</code>,
+so I used <a href=
+"https://hackage.haskell.org/package/vty"><code>vty</code></a>
+instead. <code>vty</code> has fewer dependencies, and will provide
+a good demonstration of how to connect <code>reactive-banana</code>
+to a GUI library yourself.</p>
+<h2 id="a-quick-introduction-to-vty">A Quick Introduction to
+<code>vty</code></h2>
+<p><a href=
+"https://hackage.haskell.org/package/vty"><code>vty</code></a> is a
+terminal GUI library similar to <code>ncurses</code>. By using a
+simple terminal GUI we will be able to spend more time focused on
+<code>reactive-banana</code> itself, but first we need to learn a
+little about <code>vty</code>.</p>
+<p>The following code is a complete <code>vty</code> program which
+will print <code>Event</code>s as keys are pressed. The program
+ends after 10 seconds, and <strong>will not respond to Ctrl-C or
+other signals</strong>, so just wait it out. While the program
+runs, experiment by pressing a variety of keys.</p>
+<div class="sourceCode" id="cb1">
+<pre class="sourceCode haskell"><code class=
+"sourceCode haskell"><span id="cb1-1"><a href=
+"#cb1-1"></a><span class="kw">import</span> <span class=
+"dt">Control.Concurrent</span> (threadDelay, forkIO)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class=
+"kw">import</span> <span class=
+"dt">Control.Monad</span> (forever)</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class=
+"kw">import</span> <span class="kw">qualified</span> <span class=
+"dt">Graphics.Vty</span> <span class="kw">as</span> <span class=
+"dt">V</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class=
+"ot">main ::</span> <span class="dt">IO</span> ()</span>
+<span id="cb1-6"><a href="#cb1-6"></a>main <span class=
+"ot">=</span> <span class="kw">do</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a>    vty <span class=
+"ot">&lt;-</span> V.mkVty V.defaultConfig</span>
+<span id="cb1-8"><a href="#cb1-8"></a>    _ <span class=
+"ot">&lt;-</span> forkIO <span class=
+"op">$</span> forever <span class="op">$</span> loop vty</span>
+<span id="cb1-9"><a href="#cb1-9"></a>    threadDelay <span class=
+"op">$</span> <span class="dv">10</span> <span class=
+"op">*</span> <span class="dv">1000000</span></span>
+<span id="cb1-10"><a href="#cb1-10"></a>    V.shutdown vty</span>
+<span id="cb1-11"><a href="#cb1-11"></a></span>
+<span id="cb1-12"><a href="#cb1-12"></a><span class=
+"ot">loop ::</span> <span class="dt">V.Vty</span> <span class=
+"ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb1-13"><a href="#cb1-13"></a>loop vty <span class=
+"ot">=</span> <span class="kw">do</span></span>
+<span id="cb1-14"><a href="#cb1-14"></a>    e <span class=
+"ot">&lt;-</span> V.nextEvent vty</span>
+<span id="cb1-15"><a href="#cb1-15"></a>    showEvent e</span>
+<span id="cb1-16"><a href="#cb1-16"></a>  <span class=
+"kw">where</span></span>
+<span id="cb1-17"><a href="#cb1-17"></a><span class=
+"ot">    showEvent ::</span> <span class=
+"dt">V.Event</span> <span class="ot">-&gt;</span> <span class=
+"dt">IO</span> ()</span>
+<span id="cb1-18"><a href="#cb1-18"></a>    showEvent <span class=
+"ot">=</span> V.update vty <span class=
+"op">.</span> V.picForImage <span class=
+"op">.</span> V.string V.defAttr <span class=
+"op">.</span> <span class=
+"fu">show</span></span></code></pre></div>
+<p>A few notes about the code:</p>
+<ul>
+<li>
+<p>The <code>main</code> function initializes <code>vty</code> and
+starts the <code>loop</code> function in a separate thread, and
+then ends the entire program after 10 seconds. In Haskell all
+threads end when the main thread ends.</p>
+</li>
+<li>
+<p>The <code>loop</code> function receives an <code>V.Event</code>
+from <code>vty</code> and then prints it over and over in a loop.
+The <code>V.nextEvent</code> function blocks the thread until the
+next <code>V.Event</code> fires. In this case, all
+<code>V.Event</code>s are caused by keypresses.</p>
+</li>
+<li>
+<p>The <code>showEvent</code> function is a bit complicated due to
+<code>vty</code>’s API. Basically, <code>V.update</code> renderes
+“images” to the screen, and images are made up of “pictures”, and
+<code>V.String V.defAttr</code> is a partially applied function
+that makes pictures. Note that <code>V.defAttr</code> is short for
+“<em>default</em> attr” (rather than “<em>define</em> attr”) and
+causes <code>V.string</code> to use the default terminal
+colors.</p>
+</li>
+<li>
+<p>It’s not necissary to use multiple threads with
+<code>vty</code>, and it’s probably best to use a single thread in
+most cases. In this case though, that second thread will end up
+being useful when we integrate with
+<code>reactive-banana</code>.</p>
+</li>
+</ul>
+<p>For the specifics check out the <a href=
+"https://hackage.haskell.org/package/vty"><code>vty</code> API
+documentation on Hackage</a>.</p>
+<p>With just a few lines of code we have a real-time interactive
+program. Now we can experiment with functional reactive
+programming.</p>
+<h2 id="connecting-vty-to-reactive-banana">Connecting
+<code>vty</code> to <code>reactive-banana</code></h2>
+<p>Before we connect <code>reactive-banana</code> to
+<code>vty</code> we need a high-level understanding of how
+<code>reactive-banana</code> works. What exactly does
+<code>reactive-banana</code> do? This might sound a little
+underwhelming, but bear with me; <code>reactive-banana</code>
+allows you to express IO actions in terms of input events. It’s
+simply an alternative way of implementing an <code>Events -&gt; IO
+()</code> function! Except, <code>Events -&gt; IO ()</code> isn’t
+always simple; who know’s what state is hiding in there or how that
+state is structured? It can be anything. Functional reactive
+programming gives us a standard way to express the logic and manage
+the state inside a conceptual <code>Events -&gt; IO ()</code>
+function.</p>
+<p>In <code>reactive-banana</code> we will built a “network” out of
+“<code>Events</code>” and “<code>Behaviors</code>” and about ten
+primative combinators. The conceptual network formed by these
+<code>Events</code>, <code>Behaviors</code>, and combinators is
+called an “event graph”, although there is no type by this name. An
+“event graph” can be connected to the real world in a variety of
+ways, but the implementation will stay the same, this allows us to
+build abstract components in <code>reactive-banana</code> without
+worrying about how they will be connected to the real world. When
+the “event graph” is ultimately connected to real world inputs and
+outputs it becomes an “<code>EventNetwork</code>”. Below we will
+build an extremely simple <code>EventNetwork</code> and use it in
+our program. There is no benefit to such a simple
+<code>EventNetwork</code>, but it will allow us to see how an
+<code>EventNetwork</code> is connected to the rest of the program.
+We will later build more sophisticated behaviors inside the
+<code>EventNetwork</code> without needing to alter the surrounding
+code much.</p>
+<div class="sourceCode" id="cb2">
+<pre class="sourceCode haskell"><code class=
+"sourceCode haskell"><span id="cb2-1"><a href=
+"#cb2-1"></a><span class="kw">import</span> <span class=
+"dt">Control.Concurrent</span> (threadDelay, forkIO)</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class=
+"kw">import</span> <span class=
+"dt">Control.Monad</span> (forever)</span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class=
+"kw">import</span> <span class="kw">qualified</span> <span class=
+"dt">Graphics.Vty</span> <span class="kw">as</span> <span class=
+"dt">V</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class=
+"kw">import</span> <span class="dt">Reactive.Banana</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class=
+"kw">import</span> <span class=
+"dt">Reactive.Banana.Frameworks</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a></span>
+<span id="cb2-7"><a href="#cb2-7"></a><span class=
+"ot">main ::</span> <span class="dt">IO</span> ()</span>
+<span id="cb2-8"><a href="#cb2-8"></a>main <span class=
+"ot">=</span> <span class="kw">do</span></span>
+<span id="cb2-9"><a href="#cb2-9"></a>    vty <span class=
+"ot">&lt;-</span> V.mkVty V.defaultConfig</span>
+<span id="cb2-10"><a href=
+"#cb2-10"></a>    reactiveBananaNetwork <span class=
+"ot">&lt;-</span> network vty</span>
+<span id="cb2-11"><a href=
+"#cb2-11"></a>    actuate reactiveBananaNetwork</span>
+<span id="cb2-12"><a href=
+"#cb2-12"></a>    threadDelay <span class="op">$</span> <span class="dv">10</span> <span class="op">*</span> <span class="dv">1000000</span></span>
+<span id="cb2-13"><a href="#cb2-13"></a>    V.shutdown vty</span>
+<span id="cb2-14"><a href="#cb2-14"></a></span>
+<span id="cb2-15"><a href="#cb2-15"></a><span class=
+"ot">network ::</span> <span class="dt">V.Vty</span> <span class=
+"ot">-&gt;</span> <span class="dt">IO</span> <span class=
+"dt">EventNetwork</span></span>
+<span id="cb2-16"><a href="#cb2-16"></a>network vty <span class=
+"ot">=</span> compile <span class="op">$</span> <span class=
+"kw">do</span></span>
+<span id="cb2-17"><a href=
+"#cb2-17"></a>    (inputE, fireInputE) <span class=
+"ot">&lt;-</span> newEvent</span>
+<span id="cb2-18"><a href="#cb2-18"></a>    _ <span class=
+"ot">&lt;-</span> liftIO <span class=
+"op">$</span> forkIO <span class="op">$</span> forever <span class=
+"op">$</span> fireInputE <span class=
+"op">=&lt;&lt;</span> V.nextEvent vty</span>
+<span id="cb2-19"><a href="#cb2-19"></a>    reactimate <span class=
+"op">$</span> <span class="fu">fmap</span> showEvent inputE</span>
+<span id="cb2-20"><a href="#cb2-20"></a>  <span class=
+"kw">where</span></span>
+<span id="cb2-21"><a href="#cb2-21"></a><span class=
+"ot">    showEvent ::</span> <span class=
+"dt">V.Event</span> <span class="ot">-&gt;</span> <span class=
+"dt">IO</span> ()</span>
+<span id="cb2-22"><a href="#cb2-22"></a>    showEvent <span class=
+"ot">=</span> V.update vty <span class=
+"op">.</span> V.picForImage <span class=
+"op">.</span> V.string V.defAttr <span class=
+"op">.</span> <span class=
+"fu">show</span></span></code></pre></div>
+<p>About the code:</p>
+<ul>
+<li>
+<p><code>reactive-banana</code> and <code>vty</code> both have a
+type called <code>Event</code>. Do not get them mixed up. A
+<code>vty</code> <code>Event</code> is always something like “a key
+was pressed”, while a <code>reactive-banana</code>
+<code>Event</code> is more general in meaning like “something
+happened” where you’re able to choose what that “something” is. The
+type of <code>inputE</code> is <code>Event V.Event</code>, which
+means it’s a <code>reactive-banana</code> <code>Event</code>
+containing a <code>vty</code> <code>Event</code>; we might think of
+it as “something happened, and that something was a key being
+pressed”. Remember that “Event” is an overloaded term in these
+examples.</p>
+</li>
+<li>
+<p>In the <code>main</code> function we create a
+<code>reactiveBananaNetwork</code> which has the type
+<code>EventNetwork</code>. In <code>reactive-banana</code> there
+are conceptual “event graphs” which contain logic and state and are
+isolated from the real world; when these “event graphs” are
+combined with the real world by connecting inputs and outputs they
+become an <code>EventNetwork</code>.</p>
+</li>
+<li>
+<p>In the main function <code>actuate</code> runs the
+<code>EventNetwork</code>, with all its inputs and outputs, in a
+separate thread.</p>
+</li>
+<li>
+<p>In the network function <code>newEvent</code> creates a
+<code>reactive-banana</code> <code>Event</code> named
+<code>inputE</code>. <code>Events</code> and <code>Behaviors</code>
+are the two basic types that make up an FRP network. We will talk
+more about them later. The <code>fireInputE</code> should be called
+from outside the FRP network, and will cause the
+<code>inputE</code> inside the network to fire.</p>
+</li>
+<li>
+<p><code>fireInputE =&lt;&lt; V.nextEvent vty</code> runs in an
+infinite loop. It repeatedly calls <code>V.nextEvent</code> which
+blocks until a <code>vty</code> <code>Event</code> occurs, and when
+an <code>Event</code> occurs it fires that <code>Event</code> into
+the FRP network. This is necessary because
+<code>reactive-banana</code> doesn’t have a way to poll a blocking
+function like <code>V.nextEvent</code>, but we can make our own
+adapter with this one line.</p>
+</li>
+<li>
+<p><code>reactimate</code> is how the FRP network runs output
+actions.</p>
+</li>
+</ul>
+<h2 id="building-logic-with-reactive-banana">Building Logic with
+<code>reactive-banana</code></h2>
+<p>Finally, I’ll end with a more complex example. This program
+allows you to type in your terminal, and pressing escape will
+toggle capitalization of the letters.</p>
+<div class="sourceCode" id="cb3">
+<pre class="sourceCode haskell"><code class=
+"sourceCode haskell"><span id="cb3-1"><a href=
+"#cb3-1"></a><span class="kw">import</span> <span class=
+"dt">Control.Concurrent</span> (threadDelay, forkIO)</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class=
+"kw">import</span> <span class=
+"dt">Control.Monad</span> (forever)</span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class=
+"kw">import</span> <span class=
+"dt">Data.Char</span> (toUpper)</span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class=
+"kw">import</span> <span class="kw">qualified</span> <span class=
+"dt">Graphics.Vty</span> <span class="kw">as</span> <span class=
+"dt">V</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class=
+"kw">import</span> <span class="dt">Reactive.Banana</span></span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class=
+"kw">import</span> <span class=
+"dt">Reactive.Banana.Frameworks</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a></span>
+<span id="cb3-8"><a href="#cb3-8"></a><span class=
+"ot">main ::</span> <span class="dt">IO</span> ()</span>
+<span id="cb3-9"><a href="#cb3-9"></a>main <span class=
+"ot">=</span> <span class="kw">do</span></span>
+<span id="cb3-10"><a href="#cb3-10"></a>    vty <span class=
+"ot">&lt;-</span> V.mkVty V.defaultConfig</span>
+<span id="cb3-11"><a href="#cb3-11"></a>    actuate <span class=
+"op">=&lt;&lt;</span> network vty</span>
+<span id="cb3-12"><a href=
+"#cb3-12"></a>    threadDelay <span class="op">$</span> <span class="dv">20</span> <span class="op">*</span> <span class="dv">1000000</span></span>
+<span id="cb3-13"><a href="#cb3-13"></a>    V.shutdown vty</span>
+<span id="cb3-14"><a href="#cb3-14"></a></span>
+<span id="cb3-15"><a href="#cb3-15"></a><span class=
+"ot">update ::</span> <span class="dt">V.Vty</span> <span class=
+"ot">-&gt;</span> [<span class="dt">String</span>] <span class=
+"ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb3-16"><a href="#cb3-16"></a>update vty <span class=
+"ot">=</span> V.update vty <span class=
+"op">.</span> V.picForImage <span class="op">.</span> <span class=
+"fu">mconcat</span> <span class="op">.</span> <span class=
+"fu">fmap</span> (V.string V.defAttr)</span>
+<span id="cb3-17"><a href="#cb3-17"></a></span>
+<span id="cb3-18"><a href="#cb3-18"></a><span class=
+"ot">network ::</span> <span class="dt">V.Vty</span> <span class=
+"ot">-&gt;</span> <span class="dt">IO</span> <span class=
+"dt">EventNetwork</span></span>
+<span id="cb3-19"><a href="#cb3-19"></a>network vty <span class=
+"ot">=</span> compile <span class="op">$</span> <span class=
+"kw">do</span></span>
+<span id="cb3-20"><a href=
+"#cb3-20"></a>    (inputEvents, fireInputEvent) <span class=
+"ot">&lt;-</span> newEvent</span>
+<span id="cb3-21"><a href="#cb3-21"></a>    _ <span class=
+"ot">&lt;-</span> liftIO <span class=
+"op">$</span> forkIO <span class="op">$</span> forever <span class=
+"op">$</span> fireInputEvent <span class=
+"op">=&lt;&lt;</span> V.nextEvent vty</span>
+<span id="cb3-22"><a href=
+"#cb3-22"></a>    outputEvents <span class=
+"ot">&lt;-</span> liftMoment <span class=
+"op">$</span> pureNetwork inputEvents</span>
+<span id="cb3-23"><a href=
+"#cb3-23"></a>    reactimate' <span class="op">=&lt;&lt;</span> changes (<span class="fu">fmap</span> (update vty) outputEvents)</span>
+<span id="cb3-24"><a href="#cb3-24"></a></span>
+<span id="cb3-25"><a href="#cb3-25"></a><span class=
+"ot">isChar ::</span> <span class="dt">V.Event</span> <span class=
+"ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb3-26"><a href="#cb3-26"></a>isChar (<span class=
+"dt">V.EvKey</span> (<span class=
+"dt">V.KChar</span> _) _) <span class="ot">=</span> <span class=
+"dt">True</span></span>
+<span id="cb3-27"><a href=
+"#cb3-27"></a>isChar _                       <span class=
+"ot">=</span> <span class="dt">False</span></span>
+<span id="cb3-28"><a href="#cb3-28"></a></span>
+<span id="cb3-29"><a href="#cb3-29"></a><span class=
+"ot">isEsc ::</span> <span class="dt">V.Event</span> <span class=
+"ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb3-30"><a href="#cb3-30"></a>isEsc (<span class=
+"dt">V.EvKey</span> (<span class=
+"dt">V.KEsc</span>) _) <span class="ot">=</span> <span class=
+"dt">True</span></span>
+<span id="cb3-31"><a href=
+"#cb3-31"></a>isEsc _                    <span class=
+"ot">=</span> <span class="dt">False</span></span>
+<span id="cb3-32"><a href="#cb3-32"></a></span>
+<span id="cb3-33"><a href="#cb3-33"></a><span class=
+"ot">mightCapitalize ::</span> <span class=
+"dt">Bool</span> <span class="ot">-&gt;</span> <span class=
+"dt">String</span> <span class="ot">-&gt;</span> <span class=
+"dt">String</span></span>
+<span id="cb3-34"><a href=
+"#cb3-34"></a>mightCapitalize <span class="dt">True</span>  <span class="ot">=</span> <span class="fu">fmap</span> <span class="fu">toUpper</span></span>
+<span id="cb3-35"><a href=
+"#cb3-35"></a>mightCapitalize <span class="dt">False</span> <span class="ot">=</span> <span class="fu">id</span></span>
+<span id="cb3-36"><a href="#cb3-36"></a></span>
+<span id="cb3-37"><a href="#cb3-37"></a><span class=
+"ot">pureNetwork ::</span> <span class=
+"dt">Event</span> <span class="dt">V.Event</span> <span class=
+"ot">-&gt;</span> <span class="dt">Moment</span> (<span class=
+"dt">Behavior</span> [<span class="dt">String</span>])</span>
+<span id="cb3-38"><a href=
+"#cb3-38"></a>pureNetwork inputEvents <span class=
+"ot">=</span> <span class="kw">do</span></span>
+<span id="cb3-39"><a href="#cb3-39"></a>    <span class=
+"kw">let</span> inputChar <span class="ot">=</span> (\(<span class=
+"dt">V.EvKey</span> (<span class=
+"dt">V.KChar</span> c) _) <span class=
+"ot">-&gt;</span> <span class="fu">pure</span> c) <span class=
+"op">&lt;$&gt;</span></span>
+<span id="cb3-40"><a href=
+"#cb3-40"></a>                    filterE isChar inputEvents</span>
+<span id="cb3-41"><a href="#cb3-41"></a>    <span class=
+"kw">let</span> inputEsc <span class=
+"ot">=</span> filterE isEsc inputEvents</span>
+<span id="cb3-42"><a href=
+"#cb3-42"></a>    accumedString <span class=
+"ot">&lt;-</span> accumB <span class=
+"st">""</span> ((\new accumed <span class=
+"ot">-&gt;</span> accumed <span class=
+"op">++</span> new) <span class=
+"op">&lt;$&gt;</span> inputChar)</span>
+<span id="cb3-43"><a href=
+"#cb3-43"></a>    capitalizeSwitch <span class=
+"ot">&lt;-</span> accumE <span class=
+"dt">False</span> (<span class="fu">not</span> <span class=
+"op">&lt;$</span> inputEsc)</span>
+<span id="cb3-44"><a href=
+"#cb3-44"></a>    maybeCapitalize <span class=
+"ot">&lt;-</span> switchB (<span class=
+"fu">pure</span> <span class="op">$</span> mightCapitalize <span class="dt">False</span>)</span>
+<span id="cb3-45"><a href=
+"#cb3-45"></a>                               (<span class=
+"fu">pure</span> <span class=
+"op">.</span> mightCapitalize <span class=
+"op">&lt;$&gt;</span> capitalizeSwitch)</span>
+<span id="cb3-46"><a href="#cb3-46"></a>    <span class=
+"fu">pure</span> <span class="op">$</span> <span class=
+"fu">fmap</span> <span class="fu">pure</span> <span class=
+"op">$</span> maybeCapitalize <span class=
+"op">&lt;*&gt;</span> accumedString</span></code></pre></div>
+<p>The core logic and state is managed in
+<code>pureNetwork</code>.</p>
+<p>It’s been over 2 years since I started writing this post. I lost
+momentum, and then lost interest in publishing a blog until
+recently. I’ve lost most of the insights I had to offer, so I will
+instead refer you to the <a href=
+"https://hackage.haskell.org/package/reactive-banana/docs/Reactive-Banana-Combinators.html">
+<code>reactive-banana</code> documentation</a>.
+<code>reactive-banana</code> is relatively small compared to other
+FRP frameworks, and has good documentation.</p>
+<p>Hopefully this small self-contained example will give you a
+starting point for your own experiments. As an exercise, modify the
+program so that toggling capitalization is throttled to once every
+4 seconds, but other keypresses should remain unthrottled. As a
+hint, see <a href=
+"https://hackage.haskell.org/package/reactive-banana/docs/Reactive-Banana-Frameworks.html#v:fromPoll">
+<code>fromPoll</code></a>.</p>
+</article>
+</main>
+<footer><a rel="license" href=
+"http://creativecommons.org/licenses/by-sa/4.0/"><img alt=
+"Creative Commons License" src=
+"https://i.creativecommons.org/l/by-sa/4.0/88x31.png"></a><br>
+This work is licensed under a <a rel="license" href=
+"http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons
+Attribution-ShareAlike 4.0 International License</a> .</footer>
+</body>
+</html>
