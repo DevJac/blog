@@ -30,6 +30,7 @@ main = hakyllWith config $ do
             >>= loadAndApplyTemplate "templates/post.html"    postCtx
             >>= loadAndApplyTemplate "templates/default.html" postCtx
             >>= relativizeUrls
+            >>= minify
 
     create ["archive.html"] $ do
         route idRoute
@@ -44,6 +45,7 @@ main = hakyllWith config $ do
                 >>= loadAndApplyTemplate "templates/archive.html" archiveCtx
                 >>= loadAndApplyTemplate "templates/default.html" archiveCtx
                 >>= relativizeUrls
+                >>= minify
 
 
     match "index.html" $ do
@@ -59,6 +61,7 @@ main = hakyllWith config $ do
                 >>= applyAsTemplate indexCtx
                 >>= loadAndApplyTemplate "templates/default.html" indexCtx
                 >>= relativizeUrls
+                >>= minify
 
     match "templates/*" $ compile templateBodyCompiler
 
@@ -115,3 +118,14 @@ parseTitlePlainText = PlainText <$>
 parseTitleCode :: Parser TitlePart
 parseTitleCode = Code <$>
     (char '`' *> P.manyTill (P.label "Code Character" P.anySingle) (char '`'))
+
+minify :: Item String -> Compiler (Item String)
+minify = withItemBody $ unixFilter "tidy" tidyOptions
+
+tidyOptions :: [String]
+tidyOptions =
+    [ "-quiet"
+    , "-utf8"
+    , "-ashtml"
+    , "--tidy-mark no"
+    ]
