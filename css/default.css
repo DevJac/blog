@@ -47,34 +47,34 @@ article .authordate {
 }
 @media (max-width: 66rem) {
     body {
-	width: 90%;
+        width: 90%;
     }
     header {
-	margin: 1rem 0 3rem;
+        margin: 1rem 0 3rem;
     }
     .logo {
-	text-align: center;
-	font-size: 2.4rem;
-	margin: 0 0.2rem 1rem;
+        text-align: center;
+        font-size: 2.4rem;
+        margin: 0 0.2rem 1rem;
     }
     nav {
-	text-align: center;
+        text-align: center;
     }
 }
 @media (min-width: 66rem) {
     body {
-	width: 60rem;
+        width: 60rem;
     }
     header {
-	margin: 0 0 3rem;
+        margin: 0 0 3rem;
     }
     .logo {
-	text-align: left;
-	font-size: 2rem;
-	margin: 0 0.2rem;
-	float: left;
+        text-align: left;
+        font-size: 2rem;
+        margin: 0 0.2rem;
+        float: left;
     }
     nav {
-	text-align: right;
+        text-align: right;
     }
 }
