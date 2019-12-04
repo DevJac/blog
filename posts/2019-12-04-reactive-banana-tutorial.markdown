@@ -86,7 +86,7 @@ About the code:
 
 - In the network function `newEvent` creates a `reactive-banana` `Event` named `inputE`. `Events` and `Behaviors` are the two basic types that make up an FRP network. We will talk more about them later. The `fireInputE` should be called from outside the FRP network, and will cause the `inputE` inside the network to fire.
 
-- `fireInputE =<< V.nextEvent vty` runs in an infinite loop. It repeatedly calls `V.nextEvent` which blocks until a `vty` `Event` occurs, and when an `Event` occurs it fires that `Event` into the FRP network. This is necessary because `reactive-banana` doesn't have a way to poll a blocking function like `V.nextEvent`, but we can make our own adapter with this one line. 
+- `fireInputE =<< V.nextEvent vty` runs in an infinite loop. It repeatedly calls `V.nextEvent` which blocks until a `vty` `Event` occurs, and when an `Event` occurs it fires that `Event` into the FRP network. This is necessary because `reactive-banana` doesn't have a way to poll a blocking function like `V.nextEvent`, but we can make our own adapter with this one line.
 
 - `reactimate` is how the FRP network runs output actions.
 
