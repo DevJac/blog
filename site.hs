@@ -127,5 +127,5 @@ tidyOptions =
     [ "-quiet"
     , "-utf8"
     , "-ashtml"
-    , "--tidy-mark no"
+    , "--tidy-mark", "no"
     ]
