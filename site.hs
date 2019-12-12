@@ -47,6 +47,17 @@ main = hakyllWith config $ do
                 >>= relativizeUrls
                 >>= minify
 
+    match "books.markdown" $ do
+        route $ setExtension "html"
+        compile $ do
+            let booksContext =
+                    constField "title" "Books" <>
+                    defaultContext
+
+            pandocCompiler
+                >>= loadAndApplyTemplate "templates/default.html" booksContext
+                >>= relativizeUrls
+                >>= minify
 
     match "index.html" $ do
         route idRoute
