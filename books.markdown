@@ -2,7 +2,7 @@
 
 ## Math
 
-- [Information Theory for Intelligent People](http://tuvalu.santafe.edu/~simon/it.pdf) by Simon DeDeo. This is a 13 page introduction to information theory. I first encountered entropy and the Kullback-Leibler divergence while studying reinforcement learning, and this paper gave me an intuitive understanding of what those mean and made them less intimidating.
+- [Information Theory for Intelligent People](http://tuvalu.santafe.edu/~simon/it.pdf) by Simon DeDeo. This is a 13 page introduction to information theory. I first encountered entropy and the Kullback-Leibler divergence while studying reinforcement learning, and this paper gave me an intuitive understanding of what they mean and made them less intimidating.
 
 ## Haskell
 
