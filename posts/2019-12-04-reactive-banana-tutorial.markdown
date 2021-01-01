@@ -145,6 +145,8 @@ pureNetwork inputEvents = do
 
 The core logic and state is managed in `pureNetwork`.
 
+---
+
 It's been over 2 years since I started writing this post. I lost momentum, and then lost interest in publishing a blog until recently. I've lost most of the insights I had to offer, so I will instead refer you to the [`reactive-banana` documentation][4]. `reactive-banana` is relatively small compared to other FRP frameworks, and has good documentation.
 
 Hopefully this small self-contained example will give you a starting point for your own experiments. As an exercise, modify the program so that toggling capitalization is throttled to once every 4 seconds, but other keypresses should remain unthrottled. As a hint, see [`fromPoll`][5].
