@@ -22,7 +22,7 @@ These thoughts are incomplete and lacking context; they do not apply to everyone
 
 - When leaving a company, others will feel slightly resentful toward you, and you will feel excited because of new opportunities. Do not be too jovial in leaving or it will damage the memories others have of you. Empathize with them, tell them they will be missed, show concern for them and let them see you working hard on their behalf one last time.
 
-- Don't half-work just to put in the hours. It's better to give full effort half the day and then be done. Cultivating a ass-in-seat mentality is harmful to myself. When needed, give full effort all day, exceed expectations and demand compensation.
+- Don't half-work just to put in the hours. It's better to give full effort half the day and then be done. Cultivating an ass-in-seat mentality is harmful to myself. When needed, give full effort all day, exceed expectations and demand compensation.
 
 - Consider doing personal projects early, before work. Give my best self to myself, to my own projects.
 
