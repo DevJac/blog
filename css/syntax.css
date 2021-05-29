@@ -3,7 +3,7 @@ a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
 a.sourceLine:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
-div.sourceCode { margin: 1em 0; }
+div.sourceCode { margin: 2em 0 2em 2em; }
 pre.sourceCode { margin: 0; }
 @media screen {
     div.sourceCode { overflow: auto; }

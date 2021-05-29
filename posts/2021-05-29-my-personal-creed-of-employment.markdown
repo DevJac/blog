@@ -52,12 +52,12 @@ These thoughts are incomplete and lacking context; they do not apply to everyone
 
 - All problems should be viewed through the lens of "How does this hinder the companies goals?" With this view, people will want to hear your problems, but they may not choose to solve the problem the same way you would. Management wants to know the code sucks, but they might not choose to rewrite everything. That's their choice.
 
-Sometimes you might think you could rewrite and manage the product better yourself. Maybe. But then you'd be responsible for all the bullshit marketing, sales, and customer support has to do, you'd have to do all that yourself. It's not glamorous to go it alone. Besides, there's probably better things to work on than rewriting whatever cruddy app you maintain at your day job.
+- Sometimes you might think you could rewrite and manage the product better yourself. Maybe. But then you'd be responsible for everything: marketing, sales, customer support, front-end, back-end, you'd have to do all that yourself. It's not glamorous to go it alone. Besides, there's probably better things to work on than rewriting whatever cruddy app you maintain at your day job.
 
-Just because people don't think of things in the most abstract, general, or elegant way possible doesn't mean it's wrong. Sometimes you need to give people something that matches their way of thinking.
+- Just because people don't think of things in the most abstract, general, or elegant way possible doesn't mean it's wrong. Sometimes you need to give people something that matches their way of thinking.
 
-Don't sneak out at the end of the day and hope nobody asks you about hours worked. Focus, do good work in a short time, sell your work, make sure people know your important contributions, and then face the "hours worked" conversation with courage and good negotiating skills. Leave no doubt that you pull your own weight.
+- Don't sneak out at the end of the day and hope nobody asks you about hours worked. Focus, do good work quickly, sell your work, make sure people know your important contributions, and then face the "hours worked" conversation with courage and good negotiating skills. Leave no doubt that you're a valuable memeber of the team.
 
-If you believe something may lead to problems, but nobody wants to change, watch for the problems and when they appear you can propose the change again. If no problems occur, then maybe it wasn't really a problem.
+- If you believe something may lead to problems, but nobody wants to change, watch for the problems to occur and when they do  you can propose the change again. If no problems occur, then maybe it wasn't really a problem.
 
-The purpose and objective of work is to collect a paycheck by doing honest but relaxed work, enjoying time and effort spent with your team, and not working too much overtime.
+- The purpose and objective of work is to collect a paycheck by doing honest but comfortable work, enjoying the time and effort spent with your team, and not working too much overtime.
