@@ -60,4 +60,4 @@ These thoughts are incomplete and lacking context; they do not apply to everyone
 
 - If you believe something may lead to problems, but nobody wants to change, watch for the problems to occur and when they do  you can propose the change again. If no problems occur, then maybe it wasn't really a problem.
 
-- The purpose and objective of work is to collect a paycheck by doing honest but comfortable work, enjoying the time and effort spent with your team, and not working too much overtime.
+- The purpose and objective of work is to collect a paycheck by doing honest but comfortable work, enjoy the time and effort spent with your team, and not work too much overtime.
