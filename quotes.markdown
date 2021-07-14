@@ -10,3 +10,7 @@
 - "If somebody comes up to you and says something like, 'How do I make this pony fly to the moon?', the question you need to ask is, 'What problem are you trying to solve?' You’ll find out that they really need to collect gray rocks. Why they thought they had to fly to the moon, and use a *pony* to do it, only they know. People *do* get confused like this."
 
 -- [Max Kanat-Alexander](https://www.codesimplicity.com/post/complexity-and-the-wrong-solution/)
+
+"Up to now, most software has been like music written for a solo performer; with the current generation of chips we're getting a little experience with duets and quartets and other small ensembles; but scoring a work for large orchestra and chorus is a different kind of challenge."
+
+-- [Brian Hayes](https://www.americanscientist.org/article/computing-in-a-parallel-universe)
