@@ -30,7 +30,7 @@ These thoughts are incomplete and lacking context; they do not apply to everyone
 
 - Communicate with my adversaries. Help them, help them on their turf. If a contest arises, best them on their turf. They don't care if I best them on my own turf.
 
-- User interface matters.
+- User interface matters. For most users the interface *is* the application.
 
 - None are above me, all are coworkers towards the company goals. It is not my place to decide all things, it is not my place to decide what I work on, or where I would be most valuable.
 
@@ -56,7 +56,7 @@ These thoughts are incomplete and lacking context; they do not apply to everyone
 
 - Just because people don't think of things in the most abstract, general, or elegant way possible doesn't mean it's wrong. Sometimes you need to give people something that matches their way of thinking.
 
-- Don't sneak out at the end of the day and hope nobody asks you about hours worked. Focus, do good work quickly, sell your work, make sure people know your important contributions, and then face the "hours worked" conversation with courage and good negotiating skills. Leave no doubt that you're a valuable memeber of the team.
+- Don't sneak out at the end of the day and hope nobody asks you about hours worked. Focus, do good work quickly, sell your work, make sure people know your important contributions, and then face the "hours worked" conversation with courage and good negotiating skills. Leave no doubt that you're a valuable member of the team.
 
 - If you believe something may lead to problems, but nobody wants to change, watch for the problems to occur and when they do  you can propose the change again. If no problems occur, then maybe it wasn't really a problem.
 
